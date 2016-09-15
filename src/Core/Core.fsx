@@ -18,4 +18,5 @@ open XPlot.GoogleCharts
 open XPlot.GoogleCharts.Deedle
 
 let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
-    2
+    let request = SearchRepositoriesRequest()
+    request
