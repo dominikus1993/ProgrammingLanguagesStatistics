@@ -17,25 +17,5 @@ open FSharp.Data
 open XPlot.GoogleCharts
 open XPlot.GoogleCharts.Deedle
 
-// Connect to the WorldBank and access indicators EU and CZ
-// Try changing the code to look at stats for your country!
-let wb = WorldBankData.GetDataContext()
-let cz = wb.Countries.``Czech Republic``.Indicators
-let eu = wb.Countries.``European Union``.Indicators
-
-// Use Deedle to get time-series with school enrollment data
-let czschool = series cz.``School enrollment, tertiary (% gross)``
-let euschool = series eu.``School enrollment, tertiary (% gross)``
-
-// Get 5 years with the largest difference between EU and CZ
-abs (czschool - euschool)
-|> Series.sort
-|> Series.rev
-|> Series.take 5
-
-// Plot a line chart comparing the two data sets
-// (Opens a web browser window with the chart)
-[ czschool.[1975 .. 2010]; euschool.[1975 .. 2010] ]
-|> Chart.Line
-|> Chart.WithOptions (Options(legend=Legend(position="bottom")))
-|> Chart.WithLabels ["CZ"; "EU"]
+let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
+    2
