@@ -8,7 +8,10 @@
 // run the following in F# Interactive. You can ignore the project
 // (running it doesn't do anything, it just contains this script)
 #load "..\..\packages/FsLab/FsLab.fsx"
+#r "../../packages/Octokit/lib/net45/Octokit.dll"
 
+open Octokit
+open Octokit.Internal
 open Deedle
 open FSharp.Data
 open XPlot.GoogleCharts
