@@ -13,10 +13,23 @@
 open Octokit
 open Octokit.Internal
 open Deedle
+open System
 open FSharp.Data
 open XPlot.GoogleCharts
 open XPlot.GoogleCharts.Deedle
 
+let optional el =
+    match el with
+    | null -> None
+    | element -> Some element
+
 let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
-    let request = SearchRepositoriesRequest()
-    request
+    let makeRequest() =
+        let request = SearchRepositoriesRequest()
+        request.Language <- new Nullable<Language>(lang)
+        request |> client.Search.SearchRepo |> Async.AwaitTask
+
+    let response = makeRequest() |> Async.RunSynchronously |> optional
+    response
+
+    
