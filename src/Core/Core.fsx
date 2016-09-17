@@ -24,12 +24,25 @@ let optional el =
     | element -> Some element
 
 let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
-    let makeRequest() =
+    let makeRequest(page) =
         let request = SearchRepositoriesRequest()
         request.Language <- new Nullable<Language>(lang)
+        request.Page <- page
         request |> client.Search.SearchRepo |> Async.AwaitTask
 
-    let response = makeRequest() |> Async.RunSynchronously |> optional
-    response
+    let response = makeRequest(1) |> Async.RunSynchronously |> optional
+    
+    match response with
+    | Some res when res.TotalCount > 100 -> 
+        let pages = (float res.TotalCount / 100.) |> Math.Ceiling |> int
+        let allReposRequest = [2..pages] |> List.map(makeRequest)
+        async { 
+          let! result = allReposRequest |> Async.Parallel
+          return result |> Seq.collect(fun x -> x.Items) |> Seq.append(res.Items) |> Seq.toList
+        }
+    | Some res -> 
+        async { return res.Items |> Seq.toList }
+    | None -> 
+        async { return [] }
 
     
