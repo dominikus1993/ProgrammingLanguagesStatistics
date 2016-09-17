@@ -29,13 +29,12 @@ let createApiConnection login pwd =
     github.Credentials <- Credentials(login, pwd)
     github
 
-
-
 let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
     let makeRequest(page) =
         let request = SearchRepositoriesRequest()
         request.Language <- new Nullable<Language>(lang)
         request.Page <- page
+        request.Stars <- Range(5, SearchQualifierOperator.GreaterThan)
         request |> client.Search.SearchRepo |> Async.AwaitTask
 
     let response = makeRequest(1) |> Async.RunSynchronously |> toOpt
@@ -53,4 +52,13 @@ let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
     | None -> 
         async { return [] }
 
-    
+
+// Results
+
+let githubClient = createApiConnection username password
+
+let languages = [Language.FSharp; Language.Scala; Language.Elixir; Language.Haskell; Language.Elm]
+
+
+let result = languages 
+                |> List.map((fun lang -> getRepositoriesByLanguage githubClient lang |> Async.RunSynchronously) >> (fun res -> (res |> List.length, res.Head.Language)))
