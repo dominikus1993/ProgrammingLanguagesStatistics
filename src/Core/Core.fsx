@@ -18,10 +18,18 @@ open FSharp.Data
 open XPlot.GoogleCharts
 open XPlot.GoogleCharts.Deedle
 
-let optional el =
-    match el with
-    | null -> None
-    | element -> Some element
+let toOpt = function null -> None | x -> Some x
+
+let username = System.Environment.GetEnvironmentVariable("Github_Username")
+let password = System.Environment.GetEnvironmentVariable("Github_Password")
+
+let createApiConnection login pwd = 
+    let connection = new Connection(new ProductHeaderValue("ProgrammingLanguagesStatistics"))
+    let github = new GitHubClient(connection)
+    github.Credentials <- Credentials(login, pwd)
+    github
+
+
 
 let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
     let makeRequest(page) =
@@ -30,7 +38,7 @@ let getRepositoriesByLanguage (client: GitHubClient) (lang: Language) =
         request.Page <- page
         request |> client.Search.SearchRepo |> Async.AwaitTask
 
-    let response = makeRequest(1) |> Async.RunSynchronously |> optional
+    let response = makeRequest(1) |> Async.RunSynchronously |> toOpt
     
     match response with
     | Some res when res.TotalCount > 100 -> 
